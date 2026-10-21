@@ -1,0 +1,28 @@
+# LB Playground
+# Day 2: Redis + 3 backends. Each backend is exposed on its own port
+# so you can hit them directly before the load balancer exists.
+#   S1 -> localhost:8001   S2 -> localhost:8002   S3 -> localhost:8003
+# Later days add: postgres (Day 3), lb + dashboard (Day 4-5), mcp (Day 5), dns (weekend).
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  s1:
+    build: ./backend
+    environment: { SERVER_ID: S1, REDIS_URL: "redis://redis:6379" }
+    ports: ["8001:8000"]
+    depends_on: [redis]
+
+  s2:
+    build: ./backend
+    environment: { SERVER_ID: S2, REDIS_URL: "redis://redis:6379" }
+    ports: ["8002:8000"]
+    depends_on: [redis]
+
+  s3:
+    build: ./backend
+    environment: { SERVER_ID: S3, REDIS_URL: "redis://redis:6379" }
+    ports: ["8003:8000"]
+    depends_on: [redis]
